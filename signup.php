@@ -1,5 +1,8 @@
 <!-- ========== Start controller ========== -->
-<?php require_once "controllers/signup.php" ?>
+<?php
+require_once 'config.php';
+require_once 'controllers/signup.php';
+?>
 <!-- ========== End controller ========== -->
 
 
@@ -18,7 +21,7 @@
           <small class="card-subtitle">Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi doloremque veritatis magnam?</small>
         </div>
         <div class="card-body p-4 px-lg-5">
-          <form action="signup.php" id="">
+          <form action="signup.php" method="POST">
             <div class="mb-3">
               <label for="specifyEmail" class="form-label">Email</label>
               <input
