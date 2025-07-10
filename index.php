@@ -22,7 +22,7 @@ require_once 'controllers/signin.php';
                     <small class="card-subtitle">Welcome back! Please sign in to your account.</small>
                 </div>
                 <div class="card-body p-4 px-lg-5">
-                    <form action="signin.php" method="POST">
+                    <form action="index.php" method="POST">
                         <div class="mb-3">
                             <label for="specifyEmail" class="form-label">Email</label>
                             <input

@@ -27,6 +27,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
       exit(" field is required");
     }
 
+
     $email = my_sanitizer($_POST['email']);
     $country = my_sanitizer($_POST['country']);
     $password = my_sanitizer($_POST['password']);
@@ -34,24 +35,21 @@ switch ($_SERVER['REQUEST_METHOD']) {
     // Check duplication
     $sql = "SELECT * FROM users WHERE user_email = '$email' LIMIT 1; ";
     $execute = mysqli_query($conn, $sql);
-
-
     $count = (int) mysqli_num_rows($execute);
     if ($count > 0) {
       exit("Account already exists");
     }
 
-
-
     $name = explode("@", $email)[0];
 
+    // Hash the password before storing
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
     // Persist store in database 
-    $sql = "INSERT INTO users (user_name, user_email, user_country, user_password) ";
-    $sql  .= " VALUES ('$name', '$email', '$country', '$password');";
-
-
-
-    $execute = mysqli_query($conn, $sql);
+    $sql = "INSERT INTO users (user_name, user_email, user_country, user_password) VALUES (?, ?, ?, ?);";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ssss", $name, $email, $country, $hashedPassword);
+    $execute = $stmt->execute();
     if ($execute === false) {
       echo  "Account creation failed";
     }

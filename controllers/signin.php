@@ -6,45 +6,43 @@ switch ($_SERVER['REQUEST_METHOD']) {
         break;
     case 'POST':
         // collect data
-        $email = htmlspecialchars($_POST['email']);
-        $password = htmlspecialchars($_POST['password']);
+        $email = $_POST['email'];
+        $password = $_POST['password'];
 
         // validate data
-        if ($email === false) {
+        if (empty($email)) {
             exit("Email field is required");
         }
         if (empty($password)) {
             exit("Password field is required");
         }
 
-        var_dump($_POST);
-        //pass the database connection and the string to escape
 
-        require_once __DIR__ . '/../functions/database.php';
-        $conn = start_db();
+        $stmt = $conn->prepare("SELECT user_id, user_name, user_email, user_password, user_country FROM users WHERE user_email = ? LIMIT 1");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-        //checking credentials
+        if ($result->num_rows === 0) {
+            echo "<div class='alert alert-danger'>Invalid email or password</div>";
+            break;
+        }
 
-        // Pass the database connection and sanitize the email and password
-        require_once __DIR__ . '/../functions/database.php';
-        $conn = start_db();
+        $user = $result->fetch_assoc();
+        if (!password_verify($password, $user['user_password'])) {
+            echo "<div class='alert alert-danger'>Invalid email or password</div>";
+            break;
+        }
 
-
-        require_once __DIR__ . '/../functions/validate.php';
-        $email = my_sanitizer($_POST['email']);
-        $password = my_sanitizer($_POST['password']);
-
-        // validate data
-
-        // check account duplication
-
-        // set misc values
-
-        // persist/store in database
-
-        // return
-        var_dump($_POST);
-
-
-        break;
+        // Successful login
+        session_regenerate_id(true);
+        $_SESSION['user'] = [
+            'id' => $user['user_id'],
+            'name' => $user['user_name'],
+            'email' => $user['user_email'],
+            'country' => $user['user_country'] ?? null
+        ];
+        $_SESSION['login_success'] = "Welcome back, {$user['user_name']}!";
+        header('Location: dashboard.php');
+        exit;
 }
